@@ -5,7 +5,7 @@ export class Position {
 
     constructor(x: number, y: number) {
         this.x = x
-        this.y = y 
+        this.y = y
 
     }
 
@@ -17,7 +17,7 @@ export class Position {
     }
 
 
-    touch(pos:Position): boolean {
+    touch(pos: Position): boolean {
         if (this !== pos) {
             if (pos.getX() == this.x && pos.getY() == this.y) {
                 return true
@@ -27,12 +27,12 @@ export class Position {
         return false
     }
 
-    setPosition(x:number,y:number){
-        this.x = x 
+    setPosition(x: number, y: number) {
+        this.x = x
         this.y = y
     }
 
-    getPosition(x:number,y:number){
+    getPosition() {
         return this.x
         return this.y
     }

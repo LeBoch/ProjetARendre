@@ -22,7 +22,7 @@ export class Position {
         this.x = x;
         this.y = y;
     }
-    getPosition(x, y) {
+    getPosition() {
         return this.x;
         return this.y;
     }

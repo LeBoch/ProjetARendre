@@ -20,7 +20,7 @@ export class Game {
         this.player = new Player(13, 15)
         this.width = width
         this.height = height
-        this.display = new Display(40, 50)
+        this.display = new Display(width, height)
     }
 
     public run() {
@@ -28,7 +28,8 @@ export class Game {
         this.setRandomPosition(this.hole, 0)
         this.setRandomPosition(this.player, 0)
         this.setRandomPosition(this.rock, 2)
-        if (this.isMovable()) {
+        this.handleEvents()
+        if (this.isMovable() == true) {
             this.handleEvents()
         }
         this.display.draw(this)
@@ -72,24 +73,53 @@ export class Game {
 
 
     handleEvents() {
-        let x = this.player.getX()
-        let y = this.player.getY()
         document.onkeydown = (e) => {
+            let x = this.player.getX()
+            let y = this.player.getY()
+            const newPosition = new Position(x, y)
             switch (e.keyCode) {
                 case 37:
-                    x = x - 1
+                    if ((this.player.getX() !== 0)) {
+                        x = x - 1
+                    }
                     break;
                 case 38:
-                    y = y - 1
+                    if ((this.player.getY() !== 0)) {
+                        y = y - 1
+                    }
                     break;
                 case 39:
-                    x = x + 1
+                    if ((this.player.getX() !== this.width - 1)) {
+                        x = x + 1
+                    }
                     break;
                 case 40:
-                    y = y + 1
+                    if ((this.player.getY() !== this.height - 1)) {
+                        y = y + 1
+                    }
                     break;
             }
-            // this.isMovable() ? this.player.move(x, y) : this.player.move(this.player.getX(),this.player.getY())
+            // this.isMovable() ?  : this.player.move(this.player.getX(),this.player.getY())
+            this.player.move(x, y)
+            if (this.player.touch(this.hole)) {
+                this.player.move(newPosition.getX(), newPosition.getY())
+            }
+            if (this.player.touch(this.rock) && (newPosition.getX() - x == 1)) {
+                console.log('coucou')
+                this.rock.move(this.rock.getX() - 1, this.rock.getY())
+            }
+            if (this.player.touch(this.rock) && (newPosition.getX() - x == -1)) {
+                console.log('coucou')
+                this.rock.move(this.rock.getX() + 1, this.rock.getY())
+            }
+            if (this.player.touch(this.rock) && (newPosition.getY() - y == 1)) {
+                console.log('coucou')
+                this.rock.move(this.rock.getX(), this.rock.getY() - 1)
+            }
+            if (this.player.touch(this.rock) && (newPosition.getY() - y == -1)) {
+                console.log('coucou')
+                this.rock.move(this.rock.getX(), this.rock.getY() + 1)
+            }
 
             this.display.draw(this)
         }
