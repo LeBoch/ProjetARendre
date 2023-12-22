@@ -7,9 +7,9 @@ import { Direction } from "./direction.js";
 export class Game {
     constructor(width, height) {
         this.direction = Direction.DOWN;
+        this.player = new Player(13, 15);
         this.rock = new Rock(10, 16);
         this.hole = new Hole(10, 15);
-        this.player = new Player(13, 15);
         this.width = width;
         this.height = height;
         this.display = new Display(width, height);
@@ -59,54 +59,62 @@ export class Game {
     }
     handleEvents() {
         document.onkeydown = (e) => {
-            let x = this.player.getX();
-            let y = this.player.getY();
-            const newPosition = new Position(x, y);
+            let deltaX = 0;
+            let deltaY = 0;
+            let isWalkable = this.rock.getIsWalkable();
+            const oldPosition = new Position(this.player.getX() + deltaX, this.player.getY() + deltaY);
             switch (e.keyCode) {
                 case 37:
                     if ((this.player.getX() !== 0)) {
-                        x = x - 1;
+                        deltaX = -1;
                     }
                     break;
                 case 38:
                     if ((this.player.getY() !== 0)) {
-                        y = y - 1;
+                        deltaY = -1;
                     }
                     break;
                 case 39:
                     if ((this.player.getX() !== this.width - 1)) {
-                        x = x + 1;
+                        deltaX = +1;
                     }
                     break;
                 case 40:
                     if ((this.player.getY() !== this.height - 1)) {
-                        y = y + 1;
+                        deltaY = +1;
                     }
                     break;
             }
-            // this.isMovable() ?  : this.player.move(this.player.getX(),this.player.getY())
-            this.player.move(x, y);
-            if (this.player.touch(this.hole)) {
-                this.player.move(newPosition.getX(), newPosition.getY());
+            if (this.hole.touch(this.rock)) {
+                isWalkable = true;
             }
-            if (this.player.touch(this.rock) && (newPosition.getX() - x == 1)) {
-                console.log('coucou');
-                this.rock.move(this.rock.getX() - 1, this.rock.getY());
+            this.player.move(this.player.getX() + deltaX, this.player.getY() + deltaY);
+            if (this.player.touch(this.hole) && isWalkable == false) {
+                this.player.move(oldPosition.getX(), oldPosition.getY());
             }
-            if (this.player.touch(this.rock) && (newPosition.getX() - x == -1)) {
-                console.log('coucou');
-                this.rock.move(this.rock.getX() + 1, this.rock.getY());
+            if (this.player.touch(this.rock) && isWalkable == false) {
+                this.rock.move(this.rock.getX() + deltaX, this.rock.getY() + deltaY);
             }
-            if (this.player.touch(this.rock) && (newPosition.getY() - y == 1)) {
-                console.log('coucou');
-                this.rock.move(this.rock.getX(), this.rock.getY() - 1);
-            }
-            if (this.player.touch(this.rock) && (newPosition.getY() - y == -1)) {
-                console.log('coucou');
-                this.rock.move(this.rock.getX(), this.rock.getY() + 1);
-            }
+            console.log(isWalkable);
             this.display.draw(this);
         };
+        // Premiere version que j'avais faite , qui été fonctionnelle 
+        // if (this.player.touch(this.rock) && (newPosition.getX() - x == 1)) {
+        //     console.log('coucou')
+        //     this.rock.move(this.rock.getX() - 1, this.rock.getY())
+        // }
+        // if (this.player.touch(this.rock) && (newPosition.getX() - x == -1)) {
+        //     console.log('coucou')
+        //     this.rock.move(this.rock.getX() + 1, this.rock.getY())
+        // }
+        // if (this.player.touch(this.rock) && (newPosition.getY() - y == 1)) {
+        //     console.log('coucou')
+        //     this.rock.move(this.rock.getX(), this.rock.getY() - 1)
+        // }
+        // if (this.player.touch(this.rock) && (newPosition.getY() - y == -1)) {
+        //     console.log('coucou')
+        //     this.rock.move(this.rock.getX(), this.rock.getY() + 1)
+        // }
     }
     getRock() {
         return this.rock;

@@ -23,7 +23,6 @@ export class Position {
         this.y = y;
     }
     getPosition() {
-        return this.x;
-        return this.y;
+        return (this.x, this.y);
     }
 }

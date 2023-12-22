@@ -8,8 +8,8 @@ export class Display {
         let p = game.getPlayer();
         let r = game.getRock();
         this.drawer.clear();
-        this.drawer.drawRectangle(p.getX(), p.getY(), "red");
         this.drawer.drawRectangle(h.getX(), h.getY(), "black");
         this.drawer.drawRectangle(r.getX(), r.getY(), "blue");
+        this.drawer.drawRectangle(p.getX(), p.getY(), "red");
     }
 }
