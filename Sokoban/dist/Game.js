@@ -15,46 +15,42 @@ export class Game {
         this.display = new Display(width, height);
     }
     run() {
-        this.setRandomPosition(this.hole, 0);
-        this.setRandomPosition(this.player, 0);
+        this.setRandomPosition(this.hole, 2);
+        this.setRandomPosition(this.player, 2);
         this.setRandomPosition(this.rock, 2);
-        this.handleEvents();
         if (this.isMovable() == true) {
             this.handleEvents();
         }
         this.display.draw(this);
     }
     getRandomPosition(padding) {
-        let isUsed = false;
+        let isUsed = true;
         let x = 0;
         let y = 0;
-        while (!isUsed) {
+        while (isUsed) {
             x = Math.floor(Math.random() * this.width);
             y = Math.floor(Math.random() * this.height);
-            if ((x == this.hole.getX() && y == this.hole.getY()) || (x == this.player.getX() && y == this.player.getY()) || (x == this.rock.getX() && y == this.rock.getY())) {
-                isUsed = false;
+            if (x === 0) {
+                x = x + padding;
             }
-            isUsed = true;
-            {
-                if (x == 0) {
-                    x = x + padding;
-                }
-                if (y == this.height) {
-                    y = y - padding;
-                }
-                if (y == 0) {
-                    y = y + padding;
-                }
-                if (x == this.width) {
-                    x = x - padding;
-                }
+            if (y === this.height) {
+                y = y - padding;
             }
+            if (y === 0) {
+                y = y + padding;
+            }
+            if (x === this.width) {
+                x = x - padding;
+            }
+            isUsed =
+                (x == this.hole.getX() && y == this.hole.getY()) ||
+                    (x == this.player.getX() && y == this.player.getY()) ||
+                    (x == this.rock.getX() && y == this.rock.getY());
         }
         return [x, y];
     }
     setRandomPosition(pos, pad) {
         let newPos = this.getRandomPosition(pad);
-        this.getRandomPosition(pad);
         pos.setPosition(newPos[0], newPos[1]);
     }
     handleEvents() {
@@ -65,12 +61,12 @@ export class Game {
             const oldPosition = new Position(this.player.getX() + deltaX, this.player.getY() + deltaY);
             switch (e.keyCode) {
                 case 37:
-                    if ((this.player.getX() !== 0)) {
+                    if (this.player.getX() !== 0) {
                         deltaX = -1;
                     }
                     break;
                 case 38:
-                    if ((this.player.getY() !== 0)) {
+                    if (this.player.getY() !== 0) {
                         deltaY = -1;
                     }
                     break;
@@ -93,28 +89,12 @@ export class Game {
                 this.player.move(oldPosition.getX(), oldPosition.getY());
             }
             if (this.player.touch(this.rock) && isWalkable == false) {
-                this.rock.move(this.rock.getX() + deltaX, this.rock.getY() + deltaY);
+                if (this.rock.getX() !== 0 && this.rock.getY() !== 0 && this.player.getX() !== this.width - 1 && this.player.getY() !== this.height - 1) {
+                    this.rock.move(this.rock.getX() + deltaX, this.rock.getY() + deltaY);
+                }
             }
-            console.log(isWalkable);
             this.display.draw(this);
         };
-        // Premiere version que j'avais faite , qui été fonctionnelle 
-        // if (this.player.touch(this.rock) && (newPosition.getX() - x == 1)) {
-        //     console.log('coucou')
-        //     this.rock.move(this.rock.getX() - 1, this.rock.getY())
-        // }
-        // if (this.player.touch(this.rock) && (newPosition.getX() - x == -1)) {
-        //     console.log('coucou')
-        //     this.rock.move(this.rock.getX() + 1, this.rock.getY())
-        // }
-        // if (this.player.touch(this.rock) && (newPosition.getY() - y == 1)) {
-        //     console.log('coucou')
-        //     this.rock.move(this.rock.getX(), this.rock.getY() - 1)
-        // }
-        // if (this.player.touch(this.rock) && (newPosition.getY() - y == -1)) {
-        //     console.log('coucou')
-        //     this.rock.move(this.rock.getX(), this.rock.getY() + 1)
-        // }
     }
     getRock() {
         return this.rock;
