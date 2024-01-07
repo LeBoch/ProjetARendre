@@ -8,6 +8,6 @@ export class Movable extends Position {
     public move(x: number, y: number) {
         this.x = x
         this.y = y
-        
+
     }
 }

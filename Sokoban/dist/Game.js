@@ -6,18 +6,30 @@ import { Rock } from "./Rock.js";
 import { Direction } from "./direction.js";
 export class Game {
     constructor(width, height) {
+        this.rocks = [];
+        this.holes = [];
         this.direction = Direction.DOWN;
+        this.levels = [2];
+        this.selectedLevel = 0;
+        this.solvedHoles = 0;
         this.player = new Player(13, 15);
-        this.rock = new Rock(10, 16);
-        this.hole = new Hole(10, 15);
+        this.difficulty = this.levels[this.selectedLevel];
         this.width = width;
         this.height = height;
         this.display = new Display(width, height);
     }
     run() {
-        this.setRandomPosition(this.hole, 2);
-        this.setRandomPosition(this.player, 2);
-        this.setRandomPosition(this.rock, 2);
+        for (let i = 0; i < this.difficulty; i++) {
+            let tempRock = new Rock(10, 16);
+            this.setRandomPosition(tempRock, 2);
+            this.rocks.push(tempRock);
+        }
+        this.setRandomPosition(this.player, 0);
+        for (let i = 0; i < this.difficulty; i++) {
+            let tempHole = new Hole(10, 16);
+            this.setRandomPosition(tempHole, 2);
+            this.holes.push(tempHole);
+        }
         if (this.isMovable() == true) {
             this.handleEvents();
         }
@@ -28,8 +40,9 @@ export class Game {
         let x = 0;
         let y = 0;
         while (isUsed) {
-            x = Math.floor(Math.random() * this.width);
-            y = Math.floor(Math.random() * this.height);
+            x = Math.floor(Math.random() * this.width - padding);
+            y = Math.floor(Math.random() * this.height - padding);
+            let tempPosition = new Position(x, y);
             if (x === 0) {
                 x = x + padding;
             }
@@ -42,10 +55,19 @@ export class Game {
             if (x === this.width) {
                 x = x - padding;
             }
-            isUsed =
-                (x == this.hole.getX() && y == this.hole.getY()) ||
-                    (x == this.player.getX() && y == this.player.getY()) ||
-                    (x == this.rock.getX() && y == this.rock.getY());
+            isUsed = this.player.touch(tempPosition);
+            if (!isUsed) {
+                for (let i = 0; i < this.rocks.length; i++) {
+                    if (this.rocks[i].touch(tempPosition)) {
+                        isUsed = true;
+                    }
+                }
+                for (let i = 0; i < this.holes.length; i++) {
+                    if (this.holes[i].touch(tempPosition)) {
+                        isUsed = true;
+                    }
+                }
+            }
         }
         return [x, y];
     }
@@ -57,7 +79,7 @@ export class Game {
         document.onkeydown = (e) => {
             let deltaX = 0;
             let deltaY = 0;
-            let isWalkable = this.rock.getIsWalkable();
+            let isWalkable = true;
             const oldPosition = new Position(this.player.getX() + deltaX, this.player.getY() + deltaY);
             switch (e.keyCode) {
                 case 37:
@@ -81,26 +103,58 @@ export class Game {
                     }
                     break;
             }
-            if (this.hole.touch(this.rock)) {
-                isWalkable = true;
-            }
             this.player.move(this.player.getX() + deltaX, this.player.getY() + deltaY);
-            if (this.player.touch(this.hole) && isWalkable == false) {
+            for (let i = 0; i < this.difficulty; i++) {
+                if (this.player.touch(this.holes[i])) {
+                    isWalkable = this.holes[i].getIsWalkable();
+                }
+            }
+            if (!isWalkable) {
                 this.player.move(oldPosition.getX(), oldPosition.getY());
             }
-            if (this.player.touch(this.rock) && isWalkable == false) {
-                if (this.rock.getX() !== 0 && this.rock.getY() !== 0 && this.player.getX() !== this.width - 1 && this.player.getY() !== this.height - 1) {
-                    this.rock.move(this.rock.getX() + deltaX, this.rock.getY() + deltaY);
+            // if (this.player.touch(this.hole) && isWalkable == false) {
+            //    
+            // }
+            let indexRock = null;
+            for (let i = 0; i < this.difficulty; i++) {
+                if (this.player.touch(this.rocks[i]) && this.rocks[i].getIsMovable()) {
+                    indexRock = i;
+                }
+            }
+            if (indexRock !== null && this.rocks[indexRock].getX() !== 0 && this.rocks[indexRock].getY() !== 0 && this.player.getX() !== this.width - 1 && this.player.getY() !== this.height - 1) {
+                this.rocks[indexRock].move(this.rocks[indexRock].getX() + deltaX, this.rocks[indexRock].getY() + deltaY);
+                for (let i = 0; i < this.difficulty; i++) {
+                    if (this.rocks[indexRock].touch(this.holes[i]) && this.holes[i].getIsWalkable() == false) {
+                        this.rocks[indexRock].blockRock();
+                        this.holes[i].allowIsWalkable();
+                        this.solvedHoles++;
+                        if (this.solvedHoles == this.difficulty) {
+                            this.nextLevel();
+                        }
+                    }
                 }
             }
             this.display.draw(this);
         };
     }
+    nextLevel() {
+        if (this.selectedLevel == this.levels.length - 1) {
+            alert('Vous avez gagné');
+        }
+        else {
+            this.solvedHoles = 0;
+            this.selectedLevel++;
+            this.rocks = [];
+            this.holes = [];
+            this.difficulty = this.levels[this.selectedLevel];
+            this.run();
+        }
+    }
     getRock() {
-        return this.rock;
+        return this.rocks;
     }
     getHole() {
-        return this.hole;
+        return this.holes;
     }
     getPlayer() {
         return this.player;

@@ -2,9 +2,12 @@ import { Movable } from "./Movable.js";
 export class Rock extends Movable {
     constructor(x, y) {
         super(x, y);
-        this.isWalkable = false;
+        this.isMovable = true;
     }
-    getIsWalkable() {
-        return this.isWalkable;
+    getIsMovable() {
+        return this.isMovable;
+    }
+    blockRock() {
+        this.isMovable = false;
     }
 }
