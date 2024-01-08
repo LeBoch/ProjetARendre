@@ -14,7 +14,7 @@ export class Game {
     protected direction: Direction = Direction.DOWN
     protected display: Display
     protected difficulty: number
-    protected levels: Array<number> = [2];
+    protected levels: Array<number> = [2,4,6];
     protected selectedLevel = 0;
     protected solvedHoles: number = 0;
 
